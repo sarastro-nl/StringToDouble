@@ -55,4 +55,4 @@ execute:
               inc   hl
               jr    .printString
 
-;.filler:	          defs    &h4000 - ($ - ROMheader)
+.filler:	          defs    &h4000 - ($ - ROMheader)

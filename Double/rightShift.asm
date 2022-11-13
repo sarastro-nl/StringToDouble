@@ -1,4 +1,4 @@
-.rShiftString:      defb "shifting right: ", 0
+;.rShiftString:      defb "shifting right: ", 0
 RAM4Fend:     equ   RAM4Fstart
 
 rightShift:
