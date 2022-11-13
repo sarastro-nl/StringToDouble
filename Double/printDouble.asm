@@ -1,4 +1,3 @@
-.hold:              defs 8
 .half:              defb &h45, &h63, &h91, &h82, &h44, &hf4, &h00, &h00 ; 5*10^18
 .powersOf10:        defb &h0d, &he0, &hb6, &hb3, &ha7, &h64, &h00, &h00 ; 10^18
                     defb &h01, &h63, &h45, &h78, &h5d, &h8a, &h00, &h00 ; 10^17
@@ -16,9 +15,13 @@
                     defb &h00, &h00, &h00, &h00, &h00, &h01, &h86, &ha0 ; 10^5
                     defb &h00, &h00, &h00, &h00, &h00, &h00, &h27, &h10 ; 10^4
                     defb &h00, &h00, &h00, &h00, &h00, &h00, &h03, &he8 ; 10^3
-.exponent:          defs 2
 .exponentString:    defb "*2^", 0
 
+; RAM details
+.hold:        equ   RAM4Cstart      ; 8 bytes
+.exponent:    equ   .hold + 8       ; 2 bytes
+RAM4Cend:     equ   .exponent + 2   
+                    
 printDouble:        
               ld    hl, (dac)
               ld    a, l

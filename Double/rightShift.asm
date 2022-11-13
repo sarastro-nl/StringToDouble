@@ -1,12 +1,29 @@
-rightShift:
-              ld    hl, dac         
-              call  makeZero
+.rShiftString:      defb "shifting right: ", 0
+.setBitBlock: bit   0, (hl)
+              ret   z               
+              res   0, (hl)         
+              set   0, c
+              ret
+.setBitBlockSize: equ $ - .setBitBlock  
 
+; RAM details
+.setBit:      equ   RAM4Fstart      ; .setBitBlockSize bytes
+RAM4Fend:     equ   .setBit + .setBitBlockSize
+
+rightShift:         
  ld    hl, .rShiftString
  call  .printString
  ld    a, (.shift)
  call  printU8bit
                     
+              ld    hl, dac         
+              call  makeZero
+
+              ld    bc, .setBitBlockSize
+              ld    hl, .setBitBlock
+              ld    de, .setBit
+              ldir                  ; copy self changing code to ram
+
               ld    hl, 0      
               ld    (.ir), hl
               ld    (.iw), hl     
@@ -74,19 +91,16 @@ rightShift:
 .bitLoop:
               ld    a, &b01000110   ; bit 0, (hl)
               add   d
-              ld    (.changeBit + 1), a
+              ld    (.setBit + 1), a
               add   64              ; res 0, (hl)
-              ld    (.changeBit + 5), a
+              ld    (.setBit + 4), a
               ld    a, e
               add   &b11000001      ; set 0, c
-              ld    (.changeBit + 7), a
+              ld    (.setBit + 6), a
 
-.changeBit:   bit   0, (hl)
-              jr    z, .continue
-              res   0, (hl)
-              set   0, c
+              call  .setBit
 
-.continue:    ld    a, d
+              ld    a, d
               add   8
               and   &b00111000
               ld    d, a

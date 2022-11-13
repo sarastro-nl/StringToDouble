@@ -1,10 +1,7 @@
-all: ${HOME}/dev/javascript/WebMSX/src/main/data.js
+all: data.rom
 
 clean:
-	rm -f data.bin ${HOME}/dev/javascript/WebMSX/src/main/data.js
+	rm -f data.rom
 
-${HOME}/dev/javascript/WebMSX/src/main/data.js: data.bin
-	perl convert.pl data.bin ${HOME}/dev/javascript/WebMSX/src/main/data.js
-
-data.bin: *.asm */*.asm
-	../z80asm-1.8/z80asm main.asm -o data.bin
+data.rom: *.asm */*.asm
+	../z80asm-1.8/z80asm main.asm -o data.rom

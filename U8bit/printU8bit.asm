@@ -1,6 +1,9 @@
 .decimals:          defb 100
                     defb 10
-
+                    
+; RAM details
+RAM1end:      equ   RAM1start       
+                    
 printU8bit:
               push  af
               push  bc

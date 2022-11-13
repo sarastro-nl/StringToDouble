@@ -1,5 +1,8 @@
 .error:             defb "Parse error", 13, 10, 0
 
+; RAM details
+RAM4Aend:     equ   RAM4Astart       
+
 parseDouble:        
               ld    bc, 0
               ld    de, 0

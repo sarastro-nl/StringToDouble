@@ -2,7 +2,10 @@
                     defw 1000
                     defw 100
                     defw 10
-.digits:            defs 5
+
+; RAM details
+.digits:      equ   RAM2start       ; 5 bytes
+RAM2end:      equ   .digits + 5
                     
 print16bit:
               push  af
@@ -56,8 +59,7 @@ print16bit:
               ld    a, l
               add   "0"             
               ld    (bc), a
-
-.print:       ld    b, 6
+              ld    b, 6
               ld    hl, .digits
 .skipZero:    dec   b               
               ld    a, (hl)

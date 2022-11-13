@@ -1,22 +1,28 @@
-.dp:                defs 2
-.nrDigits:          defs 2
-.digits:            defs 300        ; this should be enough for 1e-100 < x < 1e+100
-.flags:             defs 1
-.exp:               defs 2
-.ir:                defs 2
-.iw:                defs 2
-.shift:             defs 1
 .powers:            defb 0, 3, 6, 9, 13, 16, 19, 23, 26, 29, 33, 36, 39, 43, 46, 49, 53, 56, 59
-.lShiftString:      defb "shifting left: ", 0
-.rShiftString:      defb "shifting right: ", 0
                     
+; RAM details
+.dp:          equ   RAM4start       ; 2 bytes
+.nrDigits:    equ   .dp + 2         ; 2 bytes
+.digits:      equ   .nrDigits + 2   ; 300 bytes, this should be enough for 1e-100 < x < 1e+100
+.flags:       equ   .digits + 300   ; 1 byte
+.exp:         equ   .flags + 1      ; 2 bytes
+.ir:          equ   .exp + 2        ; 2 bytes
+.iw:          equ   .ir + 2         ; 2 bytes
+.shift:       equ   .iw + 2         ; 1 byte
+RAM4Astart:   equ   .shift + 1
 include "Double/parseDouble.asm"
+RAM4Bstart:   equ   RAM4Aend
 include "Double/debugDouble.asm"
+RAM4Cstart:   equ   RAM4Bend
 include "Double/printDouble.asm"
+RAM4Dstart:   equ   RAM4Cend
 include "Double/printDoubleHex.asm"
+RAM4Estart:   equ   RAM4Dend
 include "Double/leftShift.asm"
+RAM4Fstart:   equ   RAM4Eend
 include "Double/rightShift.asm"
-
+RAM4end:      equ   RAM4Fend        
+                    
 initDouble:         
               ld    hl, 1023        
               ld    (.exp), hl
@@ -195,11 +201,3 @@ initDouble:
               inc   de
               ld    (.ir), de
               ret   
-
-.printString:       
-              ld    a, (hl)
-              or    a               
-              ret   z               
-              call  chput           
-              inc   hl              
-              jr    .printString

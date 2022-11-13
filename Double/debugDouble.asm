@@ -4,6 +4,9 @@
 .flagsString:       defb "flags: ", 0
 .expString:         defb "exp: ", 0
 
+; RAM details
+RAM4Bend:     equ   RAM4Bstart
+
 debugDouble:
               ld    hl, .digitsString
               call  .printString

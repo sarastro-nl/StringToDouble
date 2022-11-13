@@ -1,11 +1,18 @@
-.hold1:             defs 8
-.hold2:             defs 8
-.hold3:             defs 8
 .zero:              defs 8
-.multiplyHold1:     defs 16
-.multiplyHold2:     defs 16
 .eightTenth:        defb 204, 204, 204, 204, 204, 204, 204, 205
-                    
+
+; RAM details
+.hold1:       equ   RAM3start       ; 8 bytes
+.hold2:       equ   .hold1 + 8      ; 8 bytes
+.hold3:       equ   .hold2 + 8      ; 8 bytes
+.multHold1:   equ   .hold3 + 8      ; 16 bytes
+.multHold2:   equ   .multHold1 + 16 ; 16 bytes
+.significant: equ   .multHold2 + 16 ; 1 byte
+modulo10:     equ   .significant + 1; 1 byte
+RAM3Astart:   equ   modulo10 + 1    
+include "UInt64/printUInt64.asm"
+RAM3end:      equ   RAM3Aend        
+
 addUInt64:                          ; hl = hl + de
               ld    hl, dac
               ld    de, arg
@@ -42,8 +49,7 @@ subUInt64:                          ; hl = hl - de
 
 ;       Inputs          c = number of significant bytes
 ;       Outputs         dac = dac * arg
-;       Uses            .hold1, .multiplyHold1, .multiplyHold2
-.significant:       defs 1
+;       Uses            .hold1, .multHold1, .multHold2
                     
 multiplyUInt64:      
               ld    hl, dac
@@ -59,11 +65,11 @@ multiplyUInt64:
               ld    hl, .significant
               ld    (hl), c
                     
-              ld    hl, .multiplyHold1
+              ld    hl, .multHold1
               call  makeZero        ; sets first 8 bytes to zero
 
               ld    b, 16
-              ld    hl, .multiplyHold2
+              ld    hl, .multHold2
               call  .makeZeroAlt
 
               ld    de, dac
@@ -81,7 +87,7 @@ multiplyUInt64:
                     
               pop   hl
               ld    bc, 8
-              ld    de, .multiplyHold1 + 8   ; sets last 8 bytes with hl = highest(dac, arg)
+              ld    de, .multHold1 + 8   ; sets last 8 bytes with hl = highest(dac, arg)
               ldir
 
 .multiplyLoop:
@@ -89,8 +95,8 @@ multiplyUInt64:
               call  divideBy2
               jr    nc, .zeroCheck
 
-              ld    hl, .multiplyHold2 + 16
-              ld    de, .multiplyHold1 + 16
+              ld    hl, .multHold2 + 16
+              ld    de, .multHold1 + 16
               ld    b, 16
               or    a               ; clear carry
 .multiplyAddLoop:
@@ -105,7 +111,7 @@ multiplyUInt64:
               call  compareUInt64ToZero
               jr    z, .multiplyDone
 
-              ld    hl, .multiplyHold1 + 16
+              ld    hl, .multHold1 + 16
               ld    b, 16
               or    a               ; clear carry
 .times2Loop:
@@ -117,7 +123,7 @@ multiplyUInt64:
               ld    hl, .significant
               ld    a, 8
               sub   (hl)
-              ld    hl, .multiplyHold2
+              ld    hl, .multHold2
               ld    d, 0
               ld    e, a
               add   hl, de
@@ -156,8 +162,6 @@ times10UInt64:
               ldir                  ; arg = dac
               ret
 
-modulo10:           defs 1          
-                    
 divideBy10UInt64:                   ; dac = dac / 10
               xor   a
               ld    (modulo10), a   

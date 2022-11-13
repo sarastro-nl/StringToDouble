@@ -4,18 +4,31 @@
                     defb 12, 12, 12, 13, 13, 13, 13, 14, 14, 14
                     defb 15, 15, 15, 16, 16, 16, 16, 17, 17, 17
                     defb 18, 18, 18, 19
-.ed:                defs 1
-.hold:              defs 8          
-                    
-leftShift:          
-              ld    hl, dac         
-              call  makeZero
+.lShiftString:      defb "shifting left: ", 0
+.setBitBlock: set   0, (hl)
+              ret   
+.setBitBlockSize: equ $ - .setBitBlock  
 
+; RAM details
+.ed:          equ   RAM4Estart      ; 1 byte
+.setBit:      equ   .ed + 1         ; .setBitBlockSize bytes
+RAM4Eend:     equ   .setBit + .setBitBlockSize
+                    
+leftShift:
+                    
  ld    hl, .lShiftString
  call  .printString
  ld    a, (.shift)
  call  printU8bit
                     
+              ld    hl, dac         
+              call  makeZero
+
+              ld    bc, .setBitBlockSize
+              ld    hl, .setBitBlock
+              ld    de, .setBit
+              ldir                  ; copy self changing code to ram
+
               ld    hl, .extraDigits
               ld    a, (.shift)
               ld    d, 0
@@ -56,7 +69,9 @@ leftShift:
 
 .finish:
               ld    hl, (.iw)
-              ld    de, (.ed)
+              ld    a, (.ed)
+              ld    d, 0
+              ld    e, a            
               ld    a, h
               or    l
               push  af              
@@ -142,11 +157,11 @@ leftShift:
 .bitLoop:     
               ld    a, &b11000110   ; set 0, (hl)
               add   d
-              ld    (.changeBit + 1), a
+              ld    (.setBit + 1), a
 
               srl   c
-              jr    nc, .continue   
-.changeBit:   set   0, (hl)         
+              jr    nc, .continue
+              call  .setBit
 
 .continue:    ld    a, d
               add   8
