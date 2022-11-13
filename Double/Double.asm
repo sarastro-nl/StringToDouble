@@ -169,8 +169,19 @@ initDouble:
               djnz  .mantisseLoop
               call  .readNextDigit
               cp    5
-              jr    c, .noRounding
-              ld    a, 1
+              jr    c, .noRounding  ; lower than 5? -> don't round up
+              jr    nz, .rounding   ; higher than 5? -> round up
+              ld    hl, (.nrDigits) 
+              ld    a, l            
+              sub   17
+              or    h
+              jr    nz, .rounding   ; nrDigits higher than 17? -> round up
+              ld    hl, 15          
+              ld    (.ir), hl
+              call  .readNextDigit
+              and   &h1
+              jr    z, .noRounding  ; 16th digit is even? -> don't round up
+.rounding:    ld    a, 1
               call  UInt64WithU8bitArg
               call  addUInt64
 .noRounding:  ld    hl, dac

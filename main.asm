@@ -16,6 +16,7 @@ ROMheader:          defb    "AB"
 .doubleString:       defb "6.62607015e-34", 0
 ;.doubleString:       defb ".7450580596923828125", 0
 ;.doubleString:       defb "19.9345", 0
+;.doubleString:      defb "2.2299999999e-308", 0
                     
 ; RAM details
 RAM1start:    equ   &hc000
