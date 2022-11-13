@@ -6,28 +6,28 @@
 ; RAM details
 .digits:      equ   RAM2start       ; 5 bytes
 RAM2end:      equ   .digits + 5
-                    
+
 print16bit:
               push  af
               push  bc
               push  de
-              push  hl              
-              ld    a, l            
+              push  hl
+              ld    a, l
               or    h
               jr    nz, .nonZero
               ld    a, "0"
-              call  chput                    
+              call  chput
               jr    .end
 .nonZero:
               ld    a, h
               and   &h80
               jr    z, .positive
-              xor   a               
+              xor   a
               ld    de, 0
               ex    de, hl
               sbc   hl, de
               ld    a, "-"
-              call  chput           
+              call  chput
 .positive:
               ld    a, 4
               ld    bc, .digits
@@ -43,13 +43,13 @@ print16bit:
               ex    (sp), hl
               ex    de, hl
               ld    c, "0" - 1
-              or    a               
+              or    a
 .subtract:    inc   c
               sbc   hl, de
               jr    nc, .subtract
               add   hl, de
               pop   de
-              ex    (sp), hl        
+              ex    (sp), hl
               ld    (hl), c
               inc   hl
               ex    (sp), hl
@@ -57,26 +57,23 @@ print16bit:
               dec   a
               jr    nz, .nextDigit
               ld    a, l
-              add   "0"             
+              add   "0"
               ld    (bc), a
               ld    b, 6
               ld    hl, .digits
-.skipZero:    dec   b               
+.skipZero:    dec   b
               ld    a, (hl)
-              inc   hl              
-              cp    "0"             
+              inc   hl
+              cp    "0"
               jr    z, .skipZero
 .printLoop:   call  chput
               ld    a, (hl)
               inc   hl
               djnz  .printLoop
-.end:
-              ld    a, "\r"
-              call  chput
-              ld    a, "\n"
-              call  chput
-              pop   hl              
+.end:         ld    hl, .newLine
+              call  .printString
+              pop   hl
               pop   de
               pop   bc
               pop   af
-              ret                   
+              ret

@@ -1,5 +1,6 @@
 .powers:            defb 0, 3, 6, 9, 13, 16, 19, 23, 26, 29, 33, 36, 39, 43, 46, 49, 53, 56, 59
-                    
+.bits:              defb 1, 2, 4, 8, 16, 32, 64, 128
+
 ; RAM details
 .dp:          equ   RAM4start       ; 2 bytes
 .nrDigits:    equ   .dp + 2         ; 2 bytes
@@ -21,22 +22,22 @@ RAM4Estart:   equ   RAM4Dend
 include "Double/leftShift.asm"
 RAM4Fstart:   equ   RAM4Eend
 include "Double/rightShift.asm"
-RAM4end:      equ   RAM4Fend        
-                    
-initDouble:         
-              ld    hl, 1023        
+RAM4end:      equ   RAM4Fend
+
+initDouble:
+              ld    hl, 1023
               ld    (.exp), hl
- 
- call  debugDouble
-                    
+
+; call  debugDouble
+
               ld    hl, (.dp)
               ld    a, h
-              and   &h80            
+              and   &h80
               jr    nz, .loopNegative
 
-.loopPositive:      
+.loopPositive:
               ld    hl, (.dp)
-              ld    de, 2           
+              ld    de, 2
               or    a
               sbc   hl, de
               jr    c, .zeroOrOne
@@ -52,12 +53,12 @@ initDouble:
               ld    (.shift), a
               ld    hl, (.exp)
               ld    d, 0
-              ld    e, a            
-              add   hl, de          
+              ld    e, a
+              add   hl, de
               ld    (.exp), hl
 
               call  rightShift
-              
+
               jr    .loopPositive
 
 .loopNegative:
@@ -69,29 +70,29 @@ initDouble:
               jr    nc, .maxLeftShift
               ld    hl, .powers
               ld    de, (.dp)
-              or    a               
+              or    a
               sbc   hl, de
               ld    a, (hl)
-              inc   a               
+              inc   a
 .maxLeftShift:
               ld    (.shift), a
               ld    hl, (.exp)
               ld    d, 0
               ld    e, a
-              or    a               
-              sbc   hl, de          
+              or    a
+              sbc   hl, de
               ld    (.exp), hl
 
               call  leftShift
-                    
+
               ld    hl, (.dp)
               ld    a, h
-              and   &h80            
-              jr    nz, .loopNegative   
-                    
+              and   &h80
+              jr    nz, .loopNegative
+
 .zeroOrOne:
               ld    b, 3
-              ld    hl, 0      
+              ld    hl, 0
               ld    (.ir), hl
 .first3DigitsLoop:
               add   hl, hl
@@ -100,19 +101,19 @@ initDouble:
               add   hl, hl
               add   hl, hl
               add   hl, de
-              push  hl              
+              push  hl
               call  .readNextDigit
-              pop   hl              
+              pop   hl
               ld    d, 0
               ld    e, a
               add   hl, de
               djnz  .first3DigitsLoop
 
               ld    a, (.dp)
-              ld    bc, 0            
+              ld    bc, 0
               or    a               ; nc
               jr    nz, .dpOne
-.dpZero: 
+.dpZero:
               ld    c, 4
               ld    de, 125
               sbc   hl, de          ; nc
@@ -126,7 +127,7 @@ initDouble:
               jr    c, .addShift
               ld    c, 1
               jr    .addShift
-.dpOne:       
+.dpOne:
               ld    de, 200
               sbc   hl, de          ; nc
               jr    c, .addShift
@@ -137,29 +138,29 @@ initDouble:
               ld    de, 400
               sbc   hl, de          ; nc
               jr    c, .addShift
-              ld    c, -3 
-.addShift:                    
+              ld    c, -3
+.addShift:
               ld    hl, (.exp)
-              or    a               
+              or    a
               sbc   hl, bc
               ld    (.exp), hl
-              ld    a, c            
-              add   52              
-              ld    (.shift), a     
-              call  leftShift       
+              ld    a, c
+              add   52
+              ld    (.shift), a
+              call  leftShift
 
               ld    hl, dac
-              call  makeZero        
+              call  makeZero
               ld    b, 16
               ld    hl, 0
               ld    (.ir), hl
 .mantisseLoop:
-              push  bc              
+              push  bc
               call  times10UInt64
-              call  .readNextDigit  
+              call  .readNextDigit
               call  UInt64WithU8bitArg
               call  addUInt64
-              pop   bc              
+              pop   bc
               djnz  .mantisseLoop
               call  .readNextDigit
               cp    5
@@ -169,35 +170,35 @@ initDouble:
               call  addUInt64
 .noRounding:  ld    hl, dac
               ld    de, (.exp)
-              ld    (hl), e         
+              ld    (hl), e
               ld    a, d
               rrd
               dec   a               ; to compensate for the 1.
               sla   a
-              sla   a               
               sla   a
               sla   a
-              inc   hl              
+              sla   a
+              inc   hl
               add   a, (hl)
-              ld    (hl), a    
-              dec   hl           
+              ld    (hl), a
+              dec   hl
               ld    a, (.flags)
               and   &h80
-              add   a, (hl)            
+              add   a, (hl)
               ld    (hl), a
-              ret   
-                    
+              ret
+
 .readNextDigit:
               ld    hl, (.nrDigits)
               dec   hl
-              ld    de, (.ir)       
+              ld    de, (.ir)
               xor   a               ; reset carry, a = 0
-              sbc   hl, de          
-              jr    c, .endOfDigits 
-              ld    hl, .digits     
-              add   hl, de          
-              ld    a, (hl)         
+              sbc   hl, de
+              jr    c, .endOfDigits
+              ld    hl, .digits
+              add   hl, de
+              ld    a, (hl)
 .endOfDigits:
               inc   de
               ld    (.ir), de
-              ret   
+              ret

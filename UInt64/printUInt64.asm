@@ -19,13 +19,13 @@
                     defb &h00, &h00, &h00, &h00, &h00, &h00, &h00, &h0a ; 10^1
 ; RAM details
 .hold:        equ   RAM3Astart      ; 8 bytes
-RAM3Aend:     equ   .hold + 8                                    
+RAM3Aend:     equ   .hold + 8
 
 printUInt64:
               ld    hl, dac
               call  compareUInt64ToZero
               jr    z, .end
-                    
+
               ld    bc, 8
               ld    hl, dac
               ld    de, .hold
@@ -34,18 +34,18 @@ printUInt64:
               ld    b, 19
               ld    c, "0"          ; counter loop
               ld    hl, .powersOf10
-.nextDigit:   
+.nextDigit:
               push  bc
               push  hl
-              ld    de, .hold       
+              ld    de, .hold
               call  compareUInt64
               pop   hl
               jr    c, .printDigit
-              push  hl              
+              push  hl
               ld    de, .hold
               ex    de, hl
               call  subUInt64
-              pop   hl              
+              pop   hl
               pop   bc
               inc   c
               jr    .nextDigit
@@ -61,9 +61,7 @@ printUInt64:
               djnz  .nextDigit
 .end:         ld    hl, .hold + 7
               ld    a, (hl)
-              add   "0"             
+              add   "0"
               call  chput
-              ld    a, "\r"
-              call  chput
-              ld    a, "\n"
-              jp    chput           
+              ld    hl, .newLine
+              jp    .printString

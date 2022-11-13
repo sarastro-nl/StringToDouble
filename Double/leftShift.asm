@@ -5,29 +5,19 @@
                     defb 15, 15, 15, 16, 16, 16, 16, 17, 17, 17
                     defb 18, 18, 18, 19
 .lShiftString:      defb "shifting left: ", 0
-.setBitBlock: set   0, (hl)
-              ret   
-.setBitBlockSize: equ $ - .setBitBlock  
 
 ; RAM details
 .ed:          equ   RAM4Estart      ; 1 byte
-.setBit:      equ   .ed + 1         ; .setBitBlockSize bytes
-RAM4Eend:     equ   .setBit + .setBitBlockSize
-                    
-leftShift:
-                    
- ld    hl, .lShiftString
- call  .printString
- ld    a, (.shift)
- call  printU8bit
-                    
-              ld    hl, dac         
-              call  makeZero
+RAM4Eend:     equ   .ed + 1
 
-              ld    bc, .setBitBlockSize
-              ld    hl, .setBitBlock
-              ld    de, .setBit
-              ldir                  ; copy self changing code to ram
+leftShift:
+; ld    hl, .lShiftString
+; call  .printString
+; ld    a, (.shift)
+; call  printU8bit
+
+              ld    hl, dac
+              call  makeZero
 
               ld    hl, .extraDigits
               ld    a, (.shift)
@@ -35,12 +25,12 @@ leftShift:
               ld    e, a
               add   hl, de
               ld    a, (hl)
-              ld    (.ed), a       
+              ld    (.ed), a
               ld    hl, (.nrDigits)
-              dec   hl              
+              dec   hl
               ld    (.ir), hl
               ld    e, a
-              add   hl, de          
+              add   hl, de
               ld    (.iw), hl
 
 .leftShiftLoop1:
@@ -58,29 +48,29 @@ leftShift:
 
 .leftShiftLoop2:
 
-              ld    hl, dac         
+              ld    hl, dac
               call  compareUInt64ToZero
               jr    z, .finish
 
               call  divideBy10UInt64 ; dac = dac / 10
               call  .writeDigit
-                    
+
               jr    .leftShiftLoop2
 
 .finish:
               ld    hl, (.iw)
               ld    a, (.ed)
               ld    d, 0
-              ld    e, a            
+              ld    e, a
               ld    a, h
               or    l
-              push  af              
+              push  af              ; store flag
               jr    nz, .addExtraDigits
               dec   de
 .addExtraDigits:
               ld    hl, (.dp)
               add   hl, de
-              ld    (.dp), hl 
+              ld    (.dp), hl
               ld    hl, (.nrDigits)
               add   hl, de
               ld    (.nrDigits), hl
@@ -95,81 +85,71 @@ leftShift:
               ld    hl, .digits
               ld    de, (.nrDigits)
               add   hl, de
-              xor   a 
+              xor   a
 .trimZeroLoop:
               dec   hl
-              dec   de              
+              dec   de
               or    (hl)
               jr    z, .trimZeroLoop
-              inc   de              
-              ld    (.nrDigits), de 
+              inc   de
+              ld    (.nrDigits), de
 
- call  debugDouble
+; call  debugDouble
 
-              ret   
-                    
+              ret
+
 .writeDigit:
-              ld    a, (modulo10)   
+              ld    a, (modulo10)
               ld    hl, .digits
               ld    de, (.iw)
               add   hl, de
               ld    (hl), a
               dec   de
               ld    (.iw), de
-              ret   
-                    
+              ret
+
 .shiftDigit:
               ld    hl, (.nrDigits)
               dec   hl
               ld    de, (.ir)
-              or    a               
+              or    a
               sbc   hl, de
-              ret   c               
+              ret   c
               ld    hl, .digits
-              add   hl, de          
+              add   hl, de
               ld    a, (hl)
               dec   de
               ld    (.ir), de
               or    a
               ret   z
-                    
-              push  af
+
+              ld    d, a
               ld    a, (.shift)
-              ld    c, a
-
-              and   &h07
-              ld    d, a
-              sla   d
-              sla   d
-              sla   d
-
               ld    hl, arg + 7
-              ld    b, 0            
+              ld    b, 0
+              ld    c, a
               srl   c
               srl   c
               srl   c
-              or    a               
+              or    a
               sbc   hl, bc
-              pop   af              
-                    
-              ld    c, a            
+              and   &h07
+              push  hl
+              ld    hl, .bits
+              ld    c, a
+              add   hl, bc
+              ld    a, (hl)
+              pop   hl
+
               ld    b, 4
-.bitLoop:     
-              ld    a, &b11000110   ; set 0, (hl)
-              add   d
-              ld    (.setBit + 1), a
-
-              srl   c
+.bitLoop:     srl   d
               jr    nc, .continue
-              call  .setBit
-
-.continue:    ld    a, d
-              add   8
-              and   &b00111000
-              ld    d, a
-              jr    nz, .skipDecHL
+              or    (hl)
+              ld    (hl), a
+.continue:    add   a, a
+              jr    nc, .skipDecHL
               dec   hl
-.skipDecHL:   djnz  .bitLoop        
-                    
-              ret   
+              ld    a, 1
+.skipDecHL:   djnz  .bitLoop
 
+              ret

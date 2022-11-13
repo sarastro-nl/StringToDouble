@@ -12,10 +12,10 @@ debugDouble:
               call  .printString
               ld    hl, .digits
               ld    bc, (.nrDigits)
-              ld    a, c            
+              ld    a, c
               or    b
               jr    nz, .digitLoop
-              xor   a               
+              xor   a
               ld    (.digits), a
               ld    bc, 1
 .digitLoop:
@@ -25,13 +25,11 @@ debugDouble:
               inc   hl
               dec   bc
               ld    a, c
-              or    b               
-              jr    nz,  .digitLoop  
+              or    b
+              jr    nz,  .digitLoop
 
-              ld    a, "\r"
-              call  chput
-              ld    a, "\n"
-              call  chput
+              ld    hl, .newLine
+              call  .printString
 
               ld    hl, .nrDigitsString
               call  .printString

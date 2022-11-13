@@ -20,9 +20,9 @@
 ; RAM details
 .hold:        equ   RAM4Cstart      ; 8 bytes
 .exponent:    equ   .hold + 8       ; 2 bytes
-RAM4Cend:     equ   .exponent + 2   
-                    
-printDouble:        
+RAM4Cend:     equ   .exponent + 2
+
+printDouble:
               ld    hl, (dac)
               ld    a, l
               or    h
@@ -31,7 +31,7 @@ printDouble:
               jp    chput
 .notZero:
               ld    (.exponent), hl
-                    
+
               ld    a, (dac)
               and   &h80
               jr    z, .print
@@ -58,7 +58,7 @@ printDouble:
               djnz  .times16Loop
 
               ld    hl, dac
-              call  makeZero        
+              call  makeZero
 
               ld    bc, 8
               ld    hl, .half
@@ -118,7 +118,7 @@ printDouble:
               add   hl, de
               djnz  .nextDigit
               ret
-                    
+
 .subtract:    ld    bc, 8
               add   hl, bc
               ld    de, dac + 8
@@ -137,7 +137,7 @@ printDouble:
               ld    hl, .exponentString
               call  .printString
 
-              xor   a               
+              xor   a
               ld    hl, .exponent
               rrd
               inc   hl
@@ -150,5 +150,5 @@ printDouble:
               ld    h, a
               ld    de, 1023
               or    a
-              sbc   hl, de          
+              sbc   hl, de
               jp    print16bit

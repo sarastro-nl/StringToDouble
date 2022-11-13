@@ -1,9 +1,9 @@
 .error:             defb "Parse error", 13, 10, 0
 
 ; RAM details
-RAM4Aend:     equ   RAM4Astart       
+RAM4Aend:     equ   RAM4Astart
 
-parseDouble:        
+parseDouble:
               ld    bc, 0
               ld    de, 0
               ld    (.dp), de
@@ -58,11 +58,11 @@ parseDouble:
               inc   de
               jr    .fraction
 .exponent:
-              push  af              
+              push  af
               push  hl
               call  .storeData
               pop   hl
-              pop   af              
+              pop   af
               cp    "e"
               jr    z, .parseSignExponent
               cp    "E"
@@ -116,7 +116,7 @@ parseDouble:
 .addExponentPositive:
               add   hl, de
               ld    (.dp), hl
-              ret   
+              ret
 
 .printError:  ld    hl, .error
               jp    .printString
@@ -132,12 +132,12 @@ parseDouble:
               ld    hl, .digits
               ex    de, hl
               or    a               ; reset carry
-              sbc   hl, de          
+              sbc   hl, de
               ld    (.nrDigits), hl
               ld    a, h
               or    l
               ret   z
-              ex    de, hl          
+              ex    de, hl
               ld    hl, .digits
               add   hl, de
 .trimTrailingZero:

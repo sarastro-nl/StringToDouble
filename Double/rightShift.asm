@@ -1,32 +1,18 @@
 .rShiftString:      defb "shifting right: ", 0
-.setBitBlock: bit   0, (hl)
-              ret   z               
-              res   0, (hl)         
-              set   0, c
-              ret
-.setBitBlockSize: equ $ - .setBitBlock  
+RAM4Fend:     equ   RAM4Fstart
 
-; RAM details
-.setBit:      equ   RAM4Fstart      ; .setBitBlockSize bytes
-RAM4Fend:     equ   .setBit + .setBitBlockSize
+rightShift:
+; ld    hl, .rShiftString
+; call  .printString
+; ld    a, (.shift)
+; call  printU8bit
 
-rightShift:         
- ld    hl, .rShiftString
- call  .printString
- ld    a, (.shift)
- call  printU8bit
-                    
-              ld    hl, dac         
+              ld    hl, dac
               call  makeZero
 
-              ld    bc, .setBitBlockSize
-              ld    hl, .setBitBlock
-              ld    de, .setBit
-              ldir                  ; copy self changing code to ram
-
-              ld    hl, 0      
+              ld    hl, 0
               ld    (.ir), hl
-              ld    (.iw), hl     
+              ld    (.iw), hl
 .rightShiftLoop1:
               call  .shiftDigit
               ld    a, c
@@ -43,72 +29,69 @@ rightShift:
 .rightShiftLoop2:
               ld    hl, .digits
               ld    de, (.iw)
-              add   hl, de          
+              add   hl, de
               ld    (hl), c
               inc   de
-              ld    (.iw), de       
+              ld    (.iw), de
 
-              ld    hl, dac         
+              ld    hl, dac
               call  compareUInt64ToZero
               jr    z, .finish
 
               call  .shiftDigit
-                    
+
               jr    .rightShiftLoop2
 .finish:
               ld    de, (.iw)
               ld    (.nrDigits), de
-                    
- call  debugDouble
 
-              ret   
+; call  debugDouble
+
+              ret
 
 .shiftDigit:
               call  times10UInt64
-              call  .readNextDigit  
+              call  .readNextDigit
               call  UInt64WithU8bitArg
               call  addUInt64
 
               ld    a, (.shift)
-              ld    c, a
-
-              and   &h07
-              ld    d, a
-              sla   d
-              sla   d
-              sla   d
-
               ld    hl, dac + 7
               ld    b, 0
+              ld    c, a
               srl   c
               srl   c
               srl   c
-              or    a               
+              or    a
               sbc   hl, bc
-                    
+              and   &h07
+              push  hl
+              ld    hl, .bits
+              ld    c, a
+              add   hl, bc
+              ld    d, (hl)
+              pop   hl
+
               ld    bc, &h0400
-              ld    e, 0            
-.bitLoop:
-              ld    a, &b01000110   ; bit 0, (hl)
-              add   d
-              ld    (.setBit + 1), a
-              add   64              ; res 0, (hl)
-              ld    (.setBit + 4), a
-              ld    a, e
-              add   &b11000001      ; set 0, c
-              ld    (.setBit + 6), a
-
-              call  .setBit
-
-              ld    a, d
-              add   8
-              and   &b00111000
+              ld    e, 1
+.bitLoop:     ld    a, d
+              and   (hl)
+              jr    z, .continue
+              cpl
+              and   (hl)
+              ld    (hl), a
+              ld    a, c
+              add   e
+              ld    c, a
+.continue:    ld    a, d
+              add   a, a
               ld    d, a
-              jr    nz, .skipDecHL
+              jr    nc, .skipDecHL
               dec   hl
+              ld    d, 1
 .skipDecHL:   ld    a, e
-              add   8
-              ld    e, a            
-              djnz  .bitLoop        
+              add   a, a
+              ld    e, a
+              djnz  .bitLoop
 
               ret
