@@ -3,7 +3,7 @@
 ; RAM details
 RAM4Aend:     equ   RAM4Astart
 
-parseDouble:
+parseDoubleString:
               ld    bc, 0
               ld    de, 0
               ld    (.dp), de

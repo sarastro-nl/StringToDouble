@@ -4,14 +4,14 @@
 ; RAM details
 .dp:          equ   RAM4start       ; 2 bytes
 .nrDigits:    equ   .dp + 2         ; 2 bytes
-.digits:      equ   .nrDigits + 2   ; 300 bytes, this should be enough for 1e-100 < x < 1e+100
-.flags:       equ   .digits + 300   ; 1 byte
+.digits:      equ   .nrDigits + 2   ; 800 bytes, should be enough for all legal double values
+.flags:       equ   .digits + 800   ; 1 byte
 .exp:         equ   .flags + 1      ; 2 bytes
 .ir:          equ   .exp + 2        ; 2 bytes
 .iw:          equ   .ir + 2         ; 2 bytes
 .shift:       equ   .iw + 2         ; 1 byte
 RAM4Astart:   equ   .shift + 1
-include "Double/parseDouble.asm"
+include "Double/parseDoubleString.asm"
 RAM4Bstart:   equ   RAM4Aend
 include "Double/debugDouble.asm"
 RAM4Cstart:   equ   RAM4Bend
@@ -30,6 +30,13 @@ initDouble:
 
 ; call  debugDouble
 
+              ld    hl, dac
+              call  makeZero
+
+              ld    hl, (.nrDigits)
+              ld    a, h
+              or    l
+              ret   z
               ld    hl, (.dp)
               ld    a, h
               and   &h80
@@ -149,8 +156,6 @@ initDouble:
               ld    (.shift), a
               call  leftShift
 
-              ld    hl, dac
-              call  makeZero
               ld    b, 16
               ld    hl, 0
               ld    (.ir), hl

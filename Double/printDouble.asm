@@ -16,6 +16,7 @@
                     defb &h00, &h00, &h00, &h00, &h00, &h00, &h27, &h10 ; 10^4
                     defb &h00, &h00, &h00, &h00, &h00, &h00, &h03, &he8 ; 10^3
 .exponentString:    defb "*2^", 0
+.zeroString:        defb "0", 13, 10, 0
 
 ; RAM details
 .hold:        equ   RAM4Cstart      ; 8 bytes
@@ -27,12 +28,10 @@ printDouble:
               ld    a, l
               or    h
               jr    nz, .notZero
-              ld    a, "0"
-              jp    chput
-.notZero:
-              ld    (.exponent), hl
-
-              ld    a, (dac)
+              ld    hl, .zeroString
+              jp    .printString
+.notZero:     ld    (.exponent), hl
+              ld    a, l
               and   &h80
               jr    z, .print
               ld    a, "-"
