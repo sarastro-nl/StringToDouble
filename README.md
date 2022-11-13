@@ -41,7 +41,7 @@ The code is (deliberately) incomplete. The following features are missing:
 
 This code is written as a 16K ROM (the code itself is just under 2.5K) to easily load it into an emulator. To run it in an emulator I've used these tools:
 
-- to compile: [z80asm](https://www.nongnu.org/z80asm/) (version 1.8) written by [Bas Wijnen](https://github.com/wijnen) (also [RUG](https://www.rug.nl/?lang=en) alumni &#1F4AA;)
+- to compile: [z80asm](https://www.nongnu.org/z80asm/) (version 1.8) written by [Bas Wijnen](https://github.com/wijnen) (also [RUG](https://www.rug.nl/?lang=en) alumni :muscle:)
 - to emulate: [WebMSX](https://github.com/ppeccin/webmsx) (version 6.0.3) written by [Paulo Augusto Peccin](https://github.com/ppeccin)
 
 Just download, unpack and configure z80asm the usual way. It can be installed anywhere but the makefile in this repo expects the z80asm-1.8 directory to be in the same directory as this repo.
